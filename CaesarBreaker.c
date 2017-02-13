@@ -15,34 +15,41 @@ void readFreq(float given[], FILE * letFreq);
 void calcFreq ( float found[], FILE * datafile, int size);
 char rotate ( char ch, int num );
 int findKey ( float given[], float found[] );
+void decrypt ( int key, FILE * datafile);
 
 int main(int argc, char ** argv){
 
   //Check for the number of arguments
-  if(argc != 2) {
+  if(argc != 3) {
     fprintf(stderr, "Usage: %s [FILEIN]\n", argv[0]);
     exit(EXIT_FAILURE);
   }
 
-  /* Load the frequencies */
+  /*// Load the frequencies
   FILE *storeFreq;
   float given[26];
   readFreq(given, storeFreq);
 
 
-  /* Find the size of file */
+  // Find the size of file
   struct stat st;
   stat(argv[1], &st);
   int size = st.st_size;
   printf("The file size is %d bytes", size);
 
-  /* Compute the frequencies in the given file */
+  // Compute the frequencies in the given file
   FILE *fileFreq = fopen(argv[1], "r");
   float found[26];
   calcFreq(found, fileFreq, size);
 
-  /* Try and find the key */
-  findKey(given,found);
+  //* Try and find the key
+  int key = findKey(given,found);*/
+
+  int key = atoi(argv[2]);
+
+  /* Decrypt the file */
+  FILE * encFile = fopen(argv[1], "r");
+  decrypt(key, encFile);
 
   exit(EXIT_SUCCESS);
 }
@@ -113,7 +120,7 @@ void calcFreq ( float found[], FILE *datafile, int size){
   int l; // l will loop over the frequency structs
   for(l=0; l<26; l++){
     found[l] = (float)(freqArray[l].frequency)/(total);
-    printf("frequency for letter: %c is %f \n", freqArray[l].letter, found[l]);
+    //printf("frequency for letter: %c is %f \n", freqArray[l].letter, found[l]);
   }
 }
 
@@ -122,13 +129,16 @@ void calcFreq ( float found[], FILE *datafile, int size){
 /* @param num the key to use for decryption */
 char rotate ( char ch, int num ){
   char match;
-  if(islower(ch)){  // Rotate if it's a lowercase letter
-    match = (char)((ch - 'a'  + (26-num)) % 26 + 'a');
-    return match;
-  } else {
-    match = (char)((ch - 'A'  + (26-num)) % 26 + 'A');
-    return toupper(match);
+  if(isalpha(ch)){
+    if(islower(ch)){  // Rotate if it's a lowercase letter
+      match = (char)((ch - 'a'  + (26-num)) % 26 + 'a');
+      return match;
+    } else {
+      match = (char)((ch - 'A'  + (26-num)) % 26 + 'A');
+      return toupper(match);
+    }
   }
+
   return ch;
 }
 
@@ -136,34 +146,46 @@ char rotate ( char ch, int num ){
 /* @param given an array of regular frequencies */
 /* @param found an array of observered frequencies */
 int findKey ( float given[], float found[] ){
-  int key, shift; // The sum of least squares
-  float tempSum, leastSumFound; // The sum of least squares for the given rotation
-  int i, j, k, wrapping; // The numbers we will be rotating with
+  int i,j , wrapping, key, shift;
+  float tempSum, leastSumFound; // The sums of least squares for the given rotation
 
-  for(i = 0; i<26; i++){  //found
+  for(i = 0; i<=26; i++){  //found
     shift = (i%26);
     printf("Shift is %d \n", shift);
     for(j = 0; j<26; j++){ //given
       tempSum = 0.0;
-      wrapping = ((j+shift)%26);
+      wrapping = ((j+i)%26);
       printf("wrapping is %d\n", wrapping);
-      tempSum += (float) pow((double)(found[j] - given[wrapping]), 2.0);
-      printf("Looking at %f, Matching %d to %f, temp is %f\n", found[j], i, given[wrapping], tempSum);
+      tempSum += (float) pow((double)(given[j] - found[wrapping]), 2);
+      printf("Matching index %d in found to index %d in given, sum is %f\n", i, wrapping, tempSum);
       }
-      if (i==0){
-        //printf("tempSum Beginning %f\n", tempSum);
+      if (i==0)
         leastSumFound = tempSum;
-      }
 
       if (tempSum < leastSumFound){
         leastSumFound = tempSum;
-        key = j - shift;
-        //printf("Smallest so far %f", leastSumFound);
+        printf("Least found so far: %f\n", leastSumFound);
+        key = i;
         printf("Key %d\n", key);
      }
-    //printf("Current temp sum: %f\n", tempSum);
 
   }
-  //printf("Least found : %f \n", leastSumFound);
+  printf("Least found : %f \n", leastSumFound);
+  printf("Final key is %d\n", key);
   return key;
+}
+
+/* Decrypts the letters in an encrypted file
+   Send the output to another file
+   @param key is the number used for encryption
+   @param datafile the file containing encrypted data */
+void decrypt ( int key,FILE * datafile){
+  char ch;
+  FILE * outFile = fopen("Decrypted.java", "w");
+  while( (ch = fgetc(datafile)) != EOF){
+    fputc(rotate(ch,key), outFile);
+  }
+
+  fclose(outFile); // Close the file output
+  fclose(datafile);
 }
