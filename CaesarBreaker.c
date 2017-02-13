@@ -55,7 +55,7 @@ void readFreq (float given[], FILE * letFreq){
   float current;
   int i = 0;
   char ch;
-  char dummyLine; /* Captures the new line character */
+  char dummyLine; // Captures the new line character
 
   if(letFreq == NULL){
     printf("file 'LetFreq.txt' could not be found!\n");
@@ -69,8 +69,8 @@ void readFreq (float given[], FILE * letFreq){
     i++;
   }
 
-  /* Close the file */
-  fclose(letFreq);
+
+  fclose(letFreq); // Close the file
 }
 
 /* Compute the frequencies for each letter in the document. */
@@ -83,22 +83,22 @@ void calcFreq ( float found[], FILE *datafile, int size){
     int frequency;
   } Frequency;
 
-  /* An array of frequency structs for ease of storage and access */
+  // An array of frequency structs for ease of storage and access
   struct Frequencies freqArray [26];
-  int i, j=0;                   /* counters for the array and letters */
+  int i, j=0;                   // counters for the array and letters
   for (i = 97; i<123; i++){
-    freqArray[j].letter = (char)i; /* Initiate the letters in the structs */
+    freqArray[j].letter = (char)i; // Initiate the letters in the structs
     freqArray[j].frequency = 0;
     j++;
   }
 
-  /* Read the file for total letters and store them  temporarily */
-  char ch; /* ch will get each character separately */
-  int k; /* k will loop over the struct of letters and  their frequencies */
-  int total = 0; /* total is the total number of letters we have seen so far */
+  // Read the file for total letters and store them  temporarily
+  char ch; // ch will get each character separately
+  int k; // k will loop over the struct of letters and  their frequencies
+  int total = 0; // total is the total number of letters we have seen so far
   while( (ch = fgetc(datafile)) != EOF){
     if(isalpha(ch)){
-      if(isupper(ch))   /*Ensure they we account for uppercase letters*/
+      if(isupper(ch))   // Ensure they we account for uppercase letters
         ch = tolower(ch);
       for(k=0; k<26; k++){
         if(freqArray[k].letter == ch){
@@ -109,8 +109,8 @@ void calcFreq ( float found[], FILE *datafile, int size){
     }
   }
 
-  /* Compute the frequency for each letter and store it in found array */
-  int l; /* l will loop over the frequency structs*/
+  // Compute the frequency for each letter and store it in found array
+  int l; // l will loop over the frequency structs
   for(l=0; l<26; l++){
     found[l] = (float)(freqArray[l].frequency)/(total);
     printf("frequency for letter: %c is %f \n", freqArray[l].letter, found[l]);
