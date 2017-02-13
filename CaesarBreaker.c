@@ -18,15 +18,15 @@ int findKey ( float given[], float found[] );
 void decrypt ( int key, FILE * datafile);
 
 int main(int argc, char ** argv){
-
+  printf("argc %d", argc);
   //Check for the number of arguments
-  if(argc != 3) {
+  if(argc != 2) {
     fprintf(stderr, "Usage: %s [FILEIN]\n", argv[0]);
     exit(EXIT_FAILURE);
   }
 
-  /*// Load the frequencies
-  FILE *storeFreq;
+  //Load the frequencies
+  FILE *storeFreq = fopen("LetFreq.txt", "r");
   float given[26];
   readFreq(given, storeFreq);
 
@@ -43,9 +43,9 @@ int main(int argc, char ** argv){
   calcFreq(found, fileFreq, size);
 
   //* Try and find the key
-  int key = findKey(given,found);*/
+  int key = findKey(given,found);
 
-  int key = atoi(argv[2]);
+  //int key = atoi(argv[2]);
 
   /* Decrypt the file */
   FILE * encFile = fopen(argv[1], "r");
@@ -58,7 +58,7 @@ int main(int argc, char ** argv){
 /* @param given an array of floats */
 /* @param letFreq a pointer to a file */
 void readFreq (float given[], FILE * letFreq){
-  letFreq = fopen("LetFreq.txt", "r");
+  //letFreq = fopen("LetFreq.txt", "r");
   float current;
   int i = 0;
   char ch;
@@ -146,21 +146,23 @@ char rotate ( char ch, int num ){
 /* @param given an array of regular frequencies */
 /* @param found an array of observered frequencies */
 int findKey ( float given[], float found[] ){
-  int i,j , wrapping, key, shift;
+  int i,j , wrapping, key;
   float tempSum, leastSumFound; // The sums of least squares for the given rotation
 
   for(i = 0; i<=26; i++){  //found
-    shift = (i%26);
-    printf("Shift is %d \n", shift);
+    tempSum = 0.0;
     for(j = 0; j<26; j++){ //given
-      tempSum = 0.0;
+
       wrapping = ((j+i)%26);
       printf("wrapping is %d\n", wrapping);
       tempSum += (float) pow((double)(given[j] - found[wrapping]), 2);
       printf("Matching index %d in found to index %d in given, sum is %f\n", i, wrapping, tempSum);
       }
-      if (i==0)
+      if (i==0){
         leastSumFound = tempSum;
+        key = i;
+      }
+
 
       if (tempSum < leastSumFound){
         leastSumFound = tempSum;
