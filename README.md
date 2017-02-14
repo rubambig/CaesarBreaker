@@ -1,4 +1,4 @@
-# CaesarBreaker
+# CaesarBreaker - A project in the System Programming class(CIS 361) @ GVSU
 A project for decrypting a ciphered file by using know frequencies of English letters
 
 It reads known frequencies of letters in the English language to try and find the best
